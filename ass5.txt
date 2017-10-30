@@ -1,0 +1,52 @@
+create table borrower(Roll_no number(2),Name varchar2(20),Issue_date date,Book_name varchar2(20),status varchar2(2))
+insert into borrower values(1,'harshit','20-aug-2017','java','i')
+insert into borrower values(2,'rshit','10-aug-2017','c++','i')
+insert into borrower values(3,'rhit','11-aug-2017','c','i')
+insert into borrower values(4,'rit','11-aug-2017','c++','i')
+insert into borrower values(5,'itgf','11-jun-2017','c++','i')
+insert into borrower values(6,'it','11-sep-2017','c++','i')
+insert into borrower values(7,'it','11-oct-2017','c++','i')
+
+create table fine(Roll_no number(2),Return_date date,Days number(3),Amount number(5))
+
+declare 
+v_Rollno number(10); 
+v_Name varchar2(20); 
+v_days number(3,0); 
+v_amt number(6):=0; 
+cursor c1 is 
+ 	select Roll_no,Name,(sysdate-Issue_date) 
+ 	from borrower; 
+ e1 exception; 
+begin 
+        insert into fine(Roll_no) 
+        select Roll_no from borrower b 
+        where not exists(select Roll_no from fine where Roll_no=b.Roll_no) and (sysdate-Issue_date)>15; 
+open c1; 
+loop 
+     fetch c1 into v_Rollno,v_Name,v_days; 
+     if v_days>15 and v_days<=30 
+       then v_amt:=(5*(v_days-15)); 
+     elsif v_days>30 
+       then v_amt:=(75+50*(v_days-30)); 
+      elsif v_days<15 
+       then v_amt:=0; 
+   end if; 
+ 
+if v_days>15 
+then 
+       update fine set return_date=sysdate,days=v_days,amount=v_amt 
+       where Roll_no=v_Rollno; 
+      	 update borrower 
+      	 set status='R' 
+       	where Roll_no=v_Rollno; 
+end if; 
+     	  if c1%notfound 
+   	 then raise e1; 
+     	end if; 
+end loop; 
+close c1; 
+exception 
+when e1 then 
+dbms_output.put_line('No active Cursor'); 
+end;

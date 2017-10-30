@@ -1,0 +1,57 @@
+create table old_roll_call(rno number(4),name varchar2(20),mark number(4));
+
+create table new_roll_call(rno number(4),name varchar2(20),mark number(4));
+
+-----------------------------------------------------------
+insert into new_roll_call values(1,'saurav',85);
+
+insert into new_roll_call values(2,'manish',60);
+
+insert into new_roll_call values(3,'santosh',35);
+
+insert into new_roll_call values(4,'rajesh',19);
+
+insert into new_roll_call values(5,'ram',15);
+
+insert into new_roll_call values(6,'ramesh',75);
+------------------------------------------------------------
+select * from new_roll_call;
+
+RNO,NAME,MARK
+1,saurav,85
+2,manish,60
+4,rajesh,19
+3,santosh,35
+5,ram,15
+6,ramesh,75
+
+-----------------------------------------------------------
+Declare  
+cursor c2(mark1 number)is select rno,name,mark  
+from new_roll_call where mark>mark1;  
+begin  
+for c1 in c2(20)  
+loop  
+merge into old_roll_call o  
+using(select c1.rno,c1.name,c1.mark from dual)  
+on(o.rno=c1.rno)  
+when matched then  
+update set  
+o.name=c1.name,  
+o.mark=c1.mark  
+when not matched then   
+insert values(c1.rno,c1.name,c1.mark);  
+end loop;  
+end;  
+
+/
+--------------------------------------------------------------
+
+select * from old_roll_call;
+
+RNO,NAME,MARK
+1,saurav,85
+2,manish,60
+3,santosh,35
+6,ramesh,75
+

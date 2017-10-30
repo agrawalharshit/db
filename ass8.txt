@@ -1,0 +1,27 @@
+ASSIGNMENT-8
+Create table Library:
+create table library( BOOK_NAME  varchar(10), FINE number(5) );
+Create table Audit_table:
+create table audit_table(user_name varchar2(20), timestamp1 date,   old_book_name varchar2(20), new_book_name varchar2(20),  old_fine number(3), new_fine number(3));
+FOR EACH ROW Trigger:
+Create or replace trigger library1
+AFTER DELETE OR INSERT OR UPDATE ON library 
+FOR EACH ROW 
+BEGIN 
+INSERT INTO audit_table (user_name, timestamp1, old_book_name,          new_book_name, old_fine, new_fine) 
+VALUES (USER, SYSDATE, :OLD.book_name, :NEW.book_name, :OLD.fine, :NEW.fine); 
+END;
+Insert :
+insert into library values('DBMS',10)
+Update:
+update library
+set fine=35,book_name='CN'
+where book_name='c'
+Delete:
+delete from library
+where book_name='verilog'
+
+
+
+
+

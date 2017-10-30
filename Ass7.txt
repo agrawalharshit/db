@@ -1,0 +1,64 @@
+
+
+create table result(rno number(2),name varchar2(20),class varchar2(15))
+
+------------------------------------------------------------------------
+
+create table result(rno number(2),name varchar2(20),class varchar2(15))
+------------------------------------------------------------------------
+
+insert into SMARKS values(2,'aurav',80)
+insert into SMARKS values(1,'saurav',85)
+insert into SMARKS values(3,'urav',50)
+
+-----------Procedure---------------------------------
+
+create or replace procedure Grade1(marks in number,v_class out varchar2) is   
+    begin   
+    if (marks>=800 )then v_class:='Distinction';   
+    elsif (marks>=70 and marks<=899) then v_class:='1st Class';   
+    elsif (marks>=60 and marks<=699) then v_class:='2nd Class';   
+    elsif (marks>=50 and marks<=599 )then v_class:='3rd Class';   
+    else   
+    v_class:='Fail';   
+    dbms_output.put_line(v_class);   
+    end if;   
+    end;
+---------------Call to the procedure---------------------------------------
+
+declare   
+    class1 varchar2(30);   
+    marks1 number;   
+    vrno number;   
+    vname varchar2(20);   
+    cursor c2 is select rno,name,marks from SMARKS;   
+    begin   
+    open c2;   
+    loop   
+    fetch c2 into vrno,vname,marks1;   
+    exit when c2%notfound;   
+    Grade1(marks1,class1);   
+    dbms_output.put_line(vrno||' '||vname||' has scored '||class1||' grade');   
+    insert into result (rno,name)   
+    select rno,name from smarks s   
+    where Not exists (select rno,name from result where rno=s.rno) ;   
+    update result   
+    set class=class1   
+    where rno=vrno;   
+    end loop;   
+    close c2;   
+    end;
+
+---------------OUTPUT------------------------
+
+2 aurav has scored 1st Class grade
+1 saurav has scored 1st Class grade
+3 urav has scored 3rd Class grade
+
+----------------------------------------------
+select * from result
+----------------------------------------------
+RNO	NAME	CLASS
+1	saurav	1st Class
+2	aurav	1st Class
+3	urav	3rd Class

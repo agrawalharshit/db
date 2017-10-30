@@ -1,0 +1,1383 @@
+////////////////////////////////////////////// CHIT NO. - 1 //////////////////////////////////////////////
+
+	Design the Company Schema given below and execute following queries on it.
+
+
+		Employee (Fname, Mname, Lname, Ssn,Bdate, Address, Gender, Salary, Super_ssn, Dno)
+		Department (Dname, DNumber, Mgr_SSN, Mgr_start_date)
+		Dept_Locations (Dnumber, Dlocation)
+		Project (Pname, Pnumber, Plocation, Dnum)
+		Works_ON (Essn, Pno, Hours)
+		Dependent (Essn, Dependent_name, Gender, Bdate, Relation)
+
+
+	a.	Retrieve all employees whose address is in alandi.
+
+		Select * from employee where address = 'Alandi';
+
+
+	b.	Find all employees who were born during 1950's.
+
+		Select * from employee where bdate like '195%';
+
+
+	c.	Retrieve the name of all employees who do not have supervisors.
+
+		Select * from employee where super_ssn is null;
+
+
+	d.	Show the resulting salary if every employee working on c product is given a 10% rise.
+
+		Select fname,lname,1.1 * salary as "Final Salary" from employee e, works_on w, project p 
+		-> where e.ssn = w.essn and w.pno = p.pno
+		-> and pname='Project C';
+
+
+	e.	Retrieve all employees in department number 5 whose salary is between 50000 and 80000.
+
+		Select * from employee where salary between 50000 and 80000 and dno = 5;
+
+
+	f.	Display the name of all employees starting with "P".
+
+		Select Concat(fname, " ", lname) as "Name" from employee where fname like 'P%';
+
+
+	g.	Retrieve all employees who resides in pune or in alandi.
+
+		Select * from employee where address = 'Pune' or address = 'Alandi';
+
+
+	h.	Retrieve the period of service of all the employees as manager of the company.
+
+		Select fname as "Name",datediff(curdate(),mgr_start_date)/365 as "Period(in years)" from
+		-> employee e, department d where e.ssn = d.mgr_ssn;
+
+
+	i.	List the names of the manager who have atleast one dependent.
+
+		Select fname from employee where exists(select * from department where ssn = mgr_ssn)
+		-> and exists(select * from dependent where ssn = essn);
+
+
+	j.	For each project on which more than 2 employees work retrieve the project number, project name and
+		the number of the employees who work on the project.
+		
+		Select pname, project.pno, count(*) as "Number of Employees" from project, works_on
+		-> where project.pno = works_on.pno group by project.pno having count(*) > 2;
+
+
+	
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////// CHIT NO. - 2 //////////////////////////////////////////////
+
+
+	Design the Company schema given below and execute following queries on it.
+
+
+		Employee (Fname, Mname, Lname, Ssn,Bdate, Address, Gender, Salary, Super_ssn, Dno)
+		Department (Dname, DNumber, Mgr_SSN, Mgr_start_date)
+		Dept_Locations (Dnumber, Dlocation)
+		Project (Pname, Pnumber, Plocation, Dnum)
+		Works_ON (Essn, Pno, Hours)
+		Dependent (Essn, Dependent_name, Gender, Bdate, Relation)
+
+		
+	a.	Retrieve the names of employees in department 5 who work more than 10 hours per week on the 'Product X' project.
+	
+		Select fname, lname from employee e, works_on w
+		-> where e.ssn = w.essn and
+		-> pno =(Select pno from Project where Pname = 'Project X')
+		-> and e.dno = 5 and hours >10;
+
+
+	b.	Retrieve the names of employees who do not work on any project. 
+
+		Select * from employee e, works_on w
+		-> where e.ssn = w.essn and pno not in(Select pno from Project);
+
+
+	c.	Find details of those employees whose salary is > the average salary for all employees.
+		Output salary in descending order. 
+
+		Select * from employee where salary > (select avg(salary) from employee) order by salary desc;
+
+
+	d.	List the last names of department managers who have no dependents. 
+
+		Select lname from employee e where ssn in
+		-> (Select mgr_ssn from department) and ssn not in
+		-> (select essn from depend);
+
+
+	e.	List all the employees working for the Research department. 
+
+		Select fname, lname from employee where
+		-> super_ssn in (select mgr_ssn from department where dname = 'Research');
+
+
+	f.	Display the full name of all the employees.
+
+		Select concat(fname," ", lname) as "Full Name" from employee;
+
+
+	g.	Retrieve the name and address of all the employees who work for the quality department.
+
+		Select fname, address from employee where
+		-> super_ssn in (select mgr_ssn from department where dname = 'Quality');
+
+
+	h.	Find the name of employees whose salary is greater than the salary of all the department number 555.
+
+		Select fname, lname from employee where salary > all(Select salary from employee where dno = 555);
+
+
+	i.	Display all the employees according to their highest salary.
+
+		Select * from employee order by salary desc;
+
+
+	j.	Retrieve the age of all the employees of the company
+
+		Select fname,(year(curdate())-year(bdate)) as "Age" from employee;	
+	
+	
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////// CHIT NO. - 3 //////////////////////////////////////////////
+
+
+	Design the following schema and execute the queries on it.
+
+	
+		Sailors (sid: integer, sname: string, rating: int, age: real)
+		Boats (bid: integer, bname: string, color: string)
+		Reserves (sid: integer, bid: integer, day: daste)
+
+		
+	a.	Find the name of the sailors who have reserved at least one boat
+
+		Select sname from Sailors
+		-> where sid in(Select distinct(sid) from Reserve);
+		
+	
+	b.	Find the age of sailors whose name begin and ends with the letter ‘a’ and has at least three characters.
+	
+		Select sname, age from Sailors where sname like 'a_%a';
+	
+	
+	c.	Find the name and age of eldest sailor.
+	
+		Select sname, age from Sailors where age >= all(Select age from Sailors);
+	
+	
+	d.	Find the age of the youngest sailor who is eligible to vote for each rating level with at least two such sailors.
+	
+		Select min(age), rating from sailors
+		-> where age > 17 group by rating having count(*) > 1;
+	
+	
+	e.	Find the names of sailors who have reserved a red boat (using nested query).
+	
+		Select sname from Sailors s, Reserve r, Boats b
+		-> where s.sid = r.sid and r.bid = b.bid and color = 'red';
+	
+	
+	f.	Find sailors whose rating is better than the sailor “Tarun”.
+	
+		Select sname from Sailors where rating > all
+		-> (Select rating from Sailors where sname = 'tarun');
+	
+	
+	g.	Find the colors of boats reserved by the sailor “Aman”
+
+		Select color from Boats, Sailors, Reserve
+		-> where Sailors.sid = Reserve.sid
+		-> and Reserve.bid = Boats.bid
+		-> and Sailors.sname = 'Aman';
+		
+		
+	h.	Find the name of sailors who have reserved a red or a green boat.
+
+		Select sname from Sailors, Reserve, Boats where
+		-> Sailors.sid = Reserve.sid and
+		-> Reserve.bid = Boats.bid and
+		-> color in("Red", "Green");
+
+
+
+	i.	Find the sid of sailors who have reserved red boat but not green boat.
+
+		Select Sailors.sid from Sailors, Reserve, Boats
+		-> where Sailors.sid = Reserve.sid and Reserve.bid = Boats.bid
+		-> and Boats.color = 'red' and Sailors.sid not in
+		-> (Select r1.sid from Reserve r1, Boats b1 where r1.bid=b1.bid and b1.color = 'green');
+
+
+	j.	Find the sailors who have not reserved any boat. 
+
+		Select sid, sname from Sailors where sid not in
+		-> (Select distinct(sid) from reserve);
+	
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////// CHIT NO. - 4 //////////////////////////////////////////////
+
+
+	Design the following schema and execute the queries on it.
+
+	
+		Sailors (sid: integer, sname: string, rating: int, age: real)
+		Boats (bid: integer, bname: string, color: string)
+		Reserves (sid: integer, bid: integer, day: daste)
+
+		
+	a.	Find the name of the sailors who have reserved a red and a green boat.
+
+		Select sname from Sailors s, Reserve r1, Reserve r2, Boats b1, Boats b2
+		-> where s.sid = r1.sid and s.sid = r2.sid
+		-> and r1.bid = b1.bid and r2.bid = b2.bid
+		-> and b1.color = 'red' and b2.color = 'green';
+
+
+	b.	Find the average age of sailors having rating = 10.
+
+		Select avg(age) from Sailors where rating = 10;
+
+
+	c.	Find the average age of sailors for each rating level that has at least two sailors.
+
+		Select avg(age), rating from Sailors
+		-> group by rating having count(*) > 1;
+
+
+	d.	Find the sailors who have not reserved any boat. 
+
+		Select sid, sname from Sailors where sid not in
+		-> (Select distinct(sid) from reserve);
+
+
+	e.	Find the names of sailors who have reserved boat 103 (using nested query).
+
+		Select sname from Sailors where sid in
+		-> (Select distinct(sid) from Reserve where bid = 103);
+
+
+	f.	Find the name of the sailors who have reserved the boat 103.
+
+		Select sname from Sailors, Reserve
+		-> where Sailors.sid = Reserve.sid
+		-> and Reserve.bid = 103;
+
+
+	g.	Count the number of sailors.
+
+		Select Count(*) from Sailors;
+
+
+	h.	Find the name and age of eldest sailor.
+
+		Select sname, age from Sailors where age >= all(Select age from Sailors);
+
+
+	i.	Find the age of sailors whose name begin with the letter ‘p’.
+
+		Select sname, age from Sailors where sname like 'p%';
+
+
+	j.	Find the sailor with maximum rating.
+
+		Select * from Sailors where rating = (Select max(rating) from Sailors);
+	
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////// CHIT NO. - 5 //////////////////////////////////////////////
+
+
+	Design the following schema and execute the queries on it.
+
+
+		Branch(branch_name, branch_city, assets)
+		Customer(customer_name, customer_street, customer_city)
+		Account(account_number, branch_name, balance)
+		Depositor(customer_name, account_number)
+		Loan(loan_number, branch_name, amount)
+		Borrower(customer_name, loan_number)
+
+
+	a.	Remove all customers living in ‘Mumbai’ city.
+
+		Delete from Customer where customer_city='Mumbai';
+
+
+	b.	Update assets by 10% where branch name is  ‘Alandi’.
+
+		Update Branch set assets = ((assets * 110)/100)) where branch_name='Alandi';
+
+
+	c.	Find the loan number of those loan with loan amount between 90000 and 1 lakh.
+
+		Select loan_number from Loan where amount between 90000 and 100000;
+
+
+	d.	Display all customer name in upper case;
+
+		Select upper(customer_name) as "Customer Name" from Customer;
+
+
+	e.	Display all customer names starting with ‘s’;
+
+		Select customer_name as "Customer Name" from Customer where customer_name like 's%';
+
+
+	f.	Find the average balance for each customer who lives in 'Pune' city and has atleast 3 accounts;
+
+		Select customer_name,avg(balance) from Depositer d,Account a,Customer c where
+		-> d.customer_name = c.customer_name and a.account_no = d.account_no and customer_city='Pune'
+		-> group by customer_name having count(*) > 2;
+
+
+	g.	Find those customer who are borrowers form bank and who appear in the list of account holder.
+
+		Select customer_name from Borrower where customer_name in(select customer_name from Depositer);
+
+
+	h.	Find the branch that has highest average balance.
+
+		Select branch_name from Account group by branch_name having avg(balance)>=
+		-> all(select avg(balance) from Account group by branch_name);
+
+
+	i.	Display all tupples of loan relation in descending order of amount;
+
+		Select * from Loan order by amount desc;
+
+
+	j.	Find the loan numbers with NULL values for amount
+
+		Select loan_number from Loan where amount is null;
+
+
+
+
+	
+	
+
+
+
+
+
+
+////////////////////////////////////////////// CHIT NO. - 6 //////////////////////////////////////////////
+
+	Design the following schema and execute the queries on it.
+
+
+		Branch(branch_name, branch_city, assets)
+		Customer(customer_name, customer_street, customer_city, bdate)
+		Account(account_number, branch_name, balance)
+		Depositor(customer_name, account_number)
+		Loan(loan_number, account_number, branch_name, amount)
+		Borrower(customer_name, loan_number)
+		
+		
+	a.	Find the names of all branches in loan relation.
+
+		Select distinct(branch_name) from Loan;
+
+
+	b.	Find all loan number for loans made at ‘Alandi’ Branch.
+
+		Select loan_number from Loan where branch_name='Alandi';
+
+
+	c.	Find the names of all customer whose street address include substring ‘road’;
+
+		Select customer_name from Customer where customer_street like '%road%';
+
+
+	d.	Display all customer name in lower case;
+
+		Select lower(customer_name) from Customer;
+
+
+	e.	Display all customer names end with ‘h’;
+
+		Select * from Customer where customer_name like '%h';
+
+
+	f.	Find the average balance for each customer who lives in 'Pune' city and has atleast 3 accounts;
+
+		Select customer_name, avg(balance) from Customer where city = 'Pune' group by customer_name having count(*) > 2;
+		
+
+
+	g.	Find all the customer who do have a loan in bank but do have an account at the bank.
+
+		Select customer_name from Customer where account_number not in
+		-> (Select distinct(account_number) from Loan);
+		
+
+
+	h.	Find all names of all branches that have an asset value greater than that of each branch in alandi.
+
+		Select branch_name from Branch where assets > all(Select assets from Branch where branch_name = 'alandi' );
+
+
+	i.	Extract the birth year of all customers;
+
+		Select customer_name as "Name", Year(bdate) as "Year of Birth" from Customer;
+
+
+	j.	Find the total account balance for each branch
+
+		Select branch_name as "Branch", sum(balance) as "Total Balance" from Account group by branch_name;
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////// CHIT NO. - 7 //////////////////////////////////////////////
+
+	Develop a PL SQL function to calculate simple interest of balance from account table
+
+	delimiter //
+	
+	create function Simple_Interest(balance int)
+    -> returns int(10)
+    -> begin
+    -> declare SI int(10);
+    -> set SI =(balance * 5 * 2)/100; 	
+    -> return(SI);
+    -> end;
+	-> //
+	
+	
+	create procedure SI()
+	-> begin
+	-> declare bal int;
+	-> declare acno int;
+	-> declare si int;
+	-> declare total int;
+	-> declare i int default 0;
+	-> declare si_cursor cursor for select account_number, balance from Account;
+	-> declare continue handler for not found set i=1;
+	-> open si_cursor;
+	-> loop1:loop
+	-> fetch si_cursor into acno, bal;
+	-> set si = Simple_Interest(bal);
+	-> set total = bal+si;
+	-> select concat("Account number : ", acno , " Balance : ", bal, " Simple Interest : ", si, " Total : ", total) as "Record";
+	-> if i=1 then 
+	-> leave loop1;
+	-> end if;
+	-> end loop loop1;
+	-> close si_cursor;
+	-> end;
+	-> //
+	
+	
+	delimiter ;
+	
+	
+	Call SI();
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////// CHIT NO. - 8 //////////////////////////////////////////////
+
+	Write a procedure to retrieve the name of employees along with their id and department from employee table
+
+	delimiter //
+	
+	create procedure Employee_records()
+    -> begin
+    -> declare id int(10);
+    -> declare fn char(10);
+    -> declare ln char(10);
+    -> declare dept int(10);
+    -> declare i int(1) default 0;
+    -> declare emp_cur cursor for select ssn,fname,lname,dno from employee;
+    -> declare continue handler for not found set i=1;
+    -> open emp_cur;
+    -> emp_loop:loop
+    -> fetch emp_cur into id,fn,ln,dept;
+    -> select concat('ID: ',id,' Name: ',fn,' ',ln,' ','is in ',dept,' department');
+    -> if i=1 then
+    -> leave emp_loop;
+    -> end if;
+    -> end loop emp_loop;
+    -> close emp_cur;
+    -> end;
+    -> //
+	
+	call Employee_records()//
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////// CHIT NO. - 9 //////////////////////////////////////////////
+
+	Write a PL/SQL procedure to count the number of boats reserved
+
+	MariaDB [Tarun]> create procedure countBoats(ondate date)
+    -> begin
+    -> declare num integer;
+    -> Select count(*) into num from reserve where day = ondate;
+    -> Select Concat(num," boats were reserved on ",ondate) as "Result";
+    -> end;//
+    -> //
+
+	MariaDB [Tarun]> call countBoats('2017-10-21');
+		-> //
+	+-------------------------------------+
+	| Result                              |
+	+-------------------------------------+
+	| 3 boats were reserved on 2017-10-21 |
+	+-------------------------------------+
+	1 row in set (0.00 sec)
+
+
+	
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 10 //////////////////////////////////////////////
+
+	Write a procedure to increment the salary of an employee base on following criteria.
+	If salary is between 20000 to 30000 give a rise of 10% and if salary is between 31000 to 40000 
+	give a rise of 7% and if salary is between 41000 to 50000 give a rise of 5% and 
+	if salary is greater than 50000 give a rise of 3%.
+	Display the incremented salary and previous salary of all employee
+
+	
+	delimiter //
+	
+	create procedure Salary_Increment()
+    -> begin
+    -> declare fn char(10);
+    -> declare oldsal float(10);
+    -> declare newsal float(10);
+    -> declare i int(1) default 0;
+    -> declare emp_cur cursor for select fname,salary from employee;
+    -> declare continue handler for not found set i=1;
+    -> open emp_cur;
+    -> emp_loop:loop
+    -> fetch emp_cur into fn, oldsal;
+    -> if oldsal>20000 and oldsal<30000 then
+    -> set newsal = (oldsal * 110)/100;
+    -> elseif oldsal>31000 and oldsal<40000 then
+    -> set newsal = (oldsal * 107)/100;
+    -> elseif oldsal>41000 and oldsal<50000 then
+    -> set newsal = (oldsal * 105)/100;
+    -> elseif oldsal>50000 then
+    -> set newsal = (oldsal * 103)/100;
+    -> else
+    -> set newsal = oldsal;
+    -> end if;
+    -> select fn as "Name", oldsal as "Old Salary", newsal as "Incremented Salary";
+    -> if i=1 then
+    -> leave emp_loop;
+    -> end if;
+    -> end loop emp_loop;
+    -> close emp_cur;
+    -> end;
+    -> //
+	
+	call Salary_Increment()//
+	
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 11 //////////////////////////////////////////////
+
+	Write a PL/SQL function to find the total no. of employee working in a dept
+
+	delimiter //
+	
+	Create function Count_Employees(dept int)
+    -> returns int
+    -> begin
+    -> Declare num int;
+    -> Select count(*) into num from employee where dno = dept;
+    -> return num;
+    -> end;
+    -> //
+	
+	Select Count_Employees(113)//
+	
+	+----------------------+
+	| Count_Employees(113) |
+	+----------------------+
+	|                    2 |
+	+----------------------+
+	1 row in set (0.00 sec)
+	
+	
+
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 12 //////////////////////////////////////////////
+
+	Create a trigger for delete event on “reserves” table that copies the record in some other table 
+	before deleting the record
+
+	MariaDB [Tarun]> Create table Reserves_History(sid int, bid int, day date);
+	Query OK, 0 rows affected (0.20 sec)
+
+	MariaDB [Tarun]> delimiter //
+
+	MariaDB [Tarun]> CREATE TRIGGER getBackup
+		-> BEFORE DELETE ON Reserve
+		-> FOR EACH ROW
+		-> BEGIN
+		-> INSERT INTO Reserves_History
+		-> VALUES(OLD.Sid, OLD.Bid, OLD.Day);
+		-> END
+		-> //
+	Query OK, 0 rows affected (0.14 sec)
+
+	MariaDB [Tarun]> delimiter ;
+
+	MariaDB [Tarun]> Select * from Reserves_History;
+	Empty set (0.00 sec)
+
+	MariaDB [Tarun]> delete from Reserve where day = '2017-10-21';
+	Query OK, 3 rows affected (0.09 sec)
+
+	MariaDB [Tarun]> Select * from Reserves_History;
+	+------+------+------------+
+	| sid  | bid  | day        |
+	+------+------+------------+
+	|  108 |  110 | 2017-10-21 |
+	|  103 |  104 | 2017-10-21 |
+	|  103 |  103 | 2017-10-21 |
+	+------+------+------------+
+	3 rows in set (0.00 sec)
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 13 //////////////////////////////////////////////
+
+	Create a trigger for updating the salary of an employee and keep a record of old salary in salary history table
+
+	Create table salary_history(ssn int, salary float);
+	
+	delimiter //
+	
+	CREATE TRIGGER Salary_Backup
+    -> BEFORE UPDATE ON Employee
+    -> FOR EACH ROW
+    -> BEGIN
+    -> INSERT INTO salary_history
+    -> VALUES(OLD.ssn, OLD.salary);
+    -> END
+    -> //
+	
+	Select * from salary_history;
+	Empty set (0.00 sec)
+	
+	Update employee set salary = 64000 where dno = 113;
+	
+	Select * from salary_history;
+
+	+------+---------+
+	| ssn  | salary  |
+	+------+---------+
+	|    3 | 9200000 |
+	|    4 |  900000 |
+	+------+---------+
+	2 rows in set (0.00 sec)
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 14 //////////////////////////////////////////////
+
+	Write a trigger to increment and decrement the total count of customers in bank 
+	when a new record is inserted or an existing record is deleted from customer table
+
+	Create table Number_of_Customers(Number_Of_Customers int);
+	
+	Insert into Number_of_Customers values(5);
+	
+	
+	/////This isnt't working on Windows... Might work on Ubuntu... You can try this one instead of writing 2 triggers/////
+	///		CREATE TRIGGER Set_Count																				//////
+	///		After Insert OR Delete ON Customer																		//////
+	///		FOR EACH ROW																							//////
+	///		BEGIN																									//////
+	///		Update Number_of_Customers																				//////
+	///		set Number_Of_Customers = (Select count(*) from Customer);												//////
+	///		END																										//////
+	///		//																										//////
+	///																												//////
+	///																												//////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	CREATE TRIGGER Set_Count_After_Insert
+    -> After Insert ON Customer
+    -> FOR EACH ROW
+    -> BEGIN
+    -> Update Number_of_Customers
+    -> set Number_Of_Customers = (Select count(*) from Customer);
+    -> END
+    -> //
+
+	CREATE TRIGGER Set_Count_After_Delete
+    -> After Delete ON Customer
+    -> FOR EACH ROW
+    -> BEGIN
+    -> Update Number_of_Customers
+    -> set Number_Of_Customers = (Select count(*) from Customer);
+    -> END
+    -> //
+	
+
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 15 //////////////////////////////////////////////
+
+	Create different types of views (i.e. horizontal, vertical, hybrid view) and 
+	verify the modification constraints on views.
+
+	SYNTAX : Create view [viewName] as [SelectQuery];
+
+		<<<<<<<<FULL VIEW>>>>>>>>>
+		Create view v1 as select * from Sailors;	
+		Query OK, 0 rows affected (0.05 sec)
+
+		MariaDB [Tarun]> Select * from v1;
+		+-----+------------+--------+------+
+		| sid | sname      | rating | age  |
+		+-----+------------+--------+------+
+		| 101 | Aman       |      7 |   20 |
+		| 102 | Suraj      |      8 |   21 |
+		| 103 | Shaktimaan |      3 |   88 |
+		| 104 | Ritesh     |      7 |   22 |
+		| 105 | Rajnikant  |     10 |   14 |
+		| 106 | Tarun      |      5 |   19 |
+		| 107 | Naren      |      8 |   19 |
+		| 108 | Aman_A     |      8 |   26 |
+		| 109 | A_man_A    |      7 |   36 |
+		| 110 | A_man      |      9 |   44 |
+		+-----+------------+--------+------+
+		10 rows in set (0.00 sec)
+		
+		
+		<<<<<<<<HORIZONTAL VIEW>>>>>>>>>
+		MariaDB [Tarun]> Create view v2 as select * from Sailors where sid between 102 and 108;
+		Query OK, 0 rows affected (0.05 sec)
+
+		MariaDB [Tarun]> Select * from v2;
+		+-----+------------+--------+------+
+		| sid | sname      | rating | age  |
+		+-----+------------+--------+------+
+		| 102 | Suraj      |      8 |   21 |
+		| 103 | Shaktimaan |      3 |   88 |
+		| 104 | Ritesh     |      7 |   22 |
+		| 105 | Rajnikant  |     10 |   14 |
+		| 106 | Tarun      |      5 |   19 |
+		| 107 | Naren      |      8 |   19 |
+		| 108 | Aman_A     |      8 |   26 |
+		+-----+------------+--------+------+
+		7 rows in set (0.00 sec)
+		
+		
+		<<<<<<<<VERTICAL VIEW>>>>>>>>>
+		MariaDB [Tarun]> Create view v3 as select sname, age from Sailors;
+		Query OK, 0 rows affected (0.07 sec)
+
+		MariaDB [Tarun]> Select * from v3;
+		+------------+------+
+		| sname      | age  |
+		+------------+------+
+		| Aman       |   20 |
+		| Suraj      |   21 |
+		| Shaktimaan |   88 |
+		| Ritesh     |   22 |
+		| Rajnikant  |   14 |
+		| Tarun      |   19 |
+		| Naren      |   19 |
+		| Aman_A     |   26 |
+		| A_man_A    |   36 |
+		| A_man      |   44 |
+		+------------+------+
+		10 rows in set (0.00 sec)
+		
+		
+		
+		<<<<<<<<HYBRID VIEW>>>>>>>>>
+		MariaDB [Tarun]> Create view v4 as select sname, age from Sailors where sid between 102 and 108;
+		Query OK, 0 rows affected (0.06 sec)
+
+		MariaDB [Tarun]> Select * from v4;
+		+------------+------+
+		| sname      | age  |
+		+------------+------+
+		| Suraj      |   21 |
+		| Shaktimaan |   88 |
+		| Ritesh     |   22 |
+		| Rajnikant  |   14 |
+		| Tarun      |   19 |
+		| Naren      |   19 |
+		| Aman_A     |   26 |
+		+------------+------+
+		7 rows in set (0.00 sec)
+		
+		
+		
+		*****
+		All the views stated above are simple views and they support modification 😊
+		
+		Restriction for midification of views are:😮😥
+		
+			1.	Views made using "JOIN" allows insertion and updation but NOT DELETION.
+			2.	Views made using "UNION" doesn't allow any modification.
+			3.	Views made using "GROUP BY" or "DISTINCT" doesn't allow any modification.
+		
+		Create Views using "JOIN", "UNION", "GROUP BY", "DISTINCT" and try to update some values to verify the above constraints.
+	
+
+
+
+
+
+
+
+
+	
+///////////////////////////////////////////// CHIT NO. - 16 //////////////////////////////////////////////
+
+	Create following collection and execute queries using MongoDB.
+
+	
+		roll( roll number), name, age, dept( department), doa(date of admission), hobbies( array), marks, fee
+
+		
+	a.	Display all students in IT department
+
+		db.Student.find({"dept":"IT"}).pretty()
+
+
+	b.	Find all the students whose age is greater than 20
+
+		db.Student.find({"age":{$gt:20}}).pretty()
+
+
+	c.	Find all student who has cricket and Programming as hobbies
+
+		db.Student.find({$and:[{"hobbies":"cricket"},{"hobbies":"Programming"}]}).pretty()
+
+
+	d.	Find the student having substring "aru" in his name
+
+		db.Student.find({"name":/aru/}).pretty()
+
+
+	e.	Create a cursor on student collection where marks greater than 400 an display it in JSON format
+
+		var cur=db.Student.find({marks:{$gt:400}});
+		while(cur.hasNext()){print(tojson(cur.next()));}
+
+
+	f.	Display first three toppers of the class
+
+		db.Student.find().sort({marks:-1}).pretty().limit(3)
+
+
+	g.	Find total fee paid in each department.
+
+		db.Student.mapReduce(function(){emit(this.dept,this.fee);}, function (key,values) {return Array.sum(values)},{out:"Total_Dept_Fee"})
+
+		db.Total_Dept_Fee.find().pretty()
+
+
+	h.	Display students according to their highest marks in each department.
+
+		db.Student.find().sort({dept:1,marks:-1}).pretty()
+
+
+	i.	Find total number of documents in the ‘students’ collection.
+
+		db.Student.find().count()
+
+
+	j.	Find the departments having more than two students enrolled in it.
+
+		db.Student.aggregate([{$group:{_id: "$dept", count:{"$sum":1}}},{$match:{count:{$gt:2}}},{$project:{_id:1}}])
+	
+
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 17 //////////////////////////////////////////////
+
+	Create following collection and execute queries using MongoDB.
+
+		roll( roll number), name, age, dept( department), doa(date of admission), hobbies( array), marks, fee
+
+		
+	a.	Display first document in IT department
+
+		db.Student.findOne({"dept":"IT"})
+
+
+	b.	Find all students whose age is between 15 and 20
+
+		db.Student.find({"age":{$gt:14}, "age":{$lt:21}}).pretty()
+
+
+	c.	Find all student who have not taken admission in IT department.
+
+		db.Student.find({"dept":{$ne:"IT"}}).pretty()
+
+
+	d.	Create a cursor on student collection where marks greater than 400 an display it in JSON format
+
+		var cur=db.Student.find({marks:{$gt:400}});
+		while(cur.hasNext()){print(tojson(cur.next()));}
+
+
+
+	e.	Skip first three document of student collection
+
+		db.Student.find().pretty().skip(3)
+
+
+	f.	Find average age of students in each department.
+
+		db.Student.mapReduce(function(){emit(this.dept,this.age);}, function (key,values) {return Array.avg(values)},{out:"Average_Age"})
+
+		db.Average_Age.find().pretty()
+
+
+	g.	Find the youngest student in the ‘students’ collection.
+
+		db.Student.find().sort({age:1}).pretty().limit(1);
+
+
+	h.	Find the number of students in each department.
+
+		db.Student.aggregate([{$group:{_id: "$dept", count:{"$sum":1}}}])
+
+
+	i.	Sort student in alphabetical order and their age in descending order
+
+		db.Student.find().sort({name:1,age:-1}).pretty()
+
+
+	j.	Execute get last error command any of the above query
+
+		db.runCommand({getLastError:1})
+		
+	
+
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 18 //////////////////////////////////////////////
+
+	Create following collection and execute queries using MongoDB.
+
+		empid, ename, dept, salary, project(array), age, designation, city, supereno
+
+
+	a.	Find the employee whose salary is between 50000 and 800000.
+
+		db.Employee.find({salary:{$gt:50000},salary:{$lt:80000}}).pretty();
+
+
+	b.	Find the employee who are manager and earning more than 80000.
+
+		db.Employee.find({$and:[{designation:'Manager'},{salary:{$gt:80000}}]}).pretty();
+
+
+	c.	Find the employee who works for all project.
+
+		db.Employee.find({$and:[{project:"P1"},{project:"P2"},{project:"P3"},{project:"P4"},{project:"P5"}]}).pretty()
+
+
+	d.	Find the employee whose id is same as that of their age.
+
+		db.Employee.find({$where:function(){return (this.empid == this.age)}}).pretty()
+
+
+	e.	Create a cursor on emp collection where salary is greater than 50000 and display it in JSON format.
+
+		var EmployeeCursor=db.Employee.find({salary:{$gt:50000}});
+		while(EmployeeCursor.hasNext()){print(tojson(EmployeeCursor.next()));}
+
+
+	f.	Display first 5 document from emp collection.
+
+		db.Employee.find().pretty().limit(5)
+
+
+	g.	Sort all emp in alphabetical order.
+
+		db.Employee.find().sort({ename:1}).pretty();
+
+
+	h.	Find the dept in which more than 2 emps work.
+
+		db.Employee.aggregate([{$group:{_id: "$dept", count:{"$sum":1}}},{$match:{count:{$gt:2}}},{$project:{_id:1}}])
+
+
+	i.	Find the avg salary of each dept.
+
+		db.Employee.mapReduce(function(){emit(this.dept,this.salary);}, function (key,values) {return Array.avg(values)},{out:"Average_Salary"})
+
+		db.Average_Salary.find().pretty()
+
+
+	j.	Find the total no. of doc in emp collection
+
+		db.Employee.find().count()
+	
+
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 19 //////////////////////////////////////////////
+
+	Create following collection and execute queries using MongoDB.
+
+		empid, ename, dept, salary, project(array), age, designation, city, supereno
+
+		
+	a.	Find all the employee those are not manager.
+
+		db.Employee.find({designation:{$ne:"Manager"}}).pretty()
+
+
+	b.	Find the employee who are residing in either in pune or mumbai.
+
+		db.Employee.find({$or:[{city:"pune"},{city:"mumbai"}]}).pretty()
+
+
+	c.	Find the employee who has no supervisor.
+
+		db.Employee.find({supervisor: ""}).pretty()
+
+
+	d.	Create a cursor on emp collection where salary is greater than 50000 and display it in JSON format.
+
+		var EmployeeCursor=db.Employee.find({salary:{$gt:50000}});
+		while(EmployeeCursor.hasNext()){print(tojson(EmployeeCursor.next()));}
+
+
+	e.	Skip first 3 document of emp collection and display the remaining documents.
+
+		db.Employee.find().skip(3);
+
+
+	f.	Display first 3 emp based on their highest salary.
+
+		db.Employee.find().sort({salary:-1}).pretty().limit(3)		
+
+
+	g.	Find the emp in each dept according to their higher salary.
+
+		db.Employee.find().sort({dept:1,salary:-1}).pretty()
+
+
+	h.	List the emp with min salary.
+
+		db.Employee.find().sort({salary:1}).pretty().limit(1)
+
+
+	i.	Find the total salary (amount) spend as salary for each dept.
+
+		db.Employee.mapReduce(function(){emit(this.dept,this.salary);}, function (key,values) {return Array.sum(values)},{out:"Total_Departmental_Salary"})
+
+		db.Total_Departmental_Salary.find().pretty()
+
+
+	j.	Find the total no. of emp in each dept
+		
+		db.Employee.aggregate([{$group:{_id: "$dept", count:{"$sum":1}}}])
+
+	
+
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 20 //////////////////////////////////////////////
+
+	Create following collection and execute queries using MongoDB.
+
+		custid, cname, city, acc_no, branch, balance, nominee, nominee_age, dob, KYC (Array), age
+
+
+	a.	Update all cutsomers who are residing in pune city.
+
+		db.Customer.update({city:'pune'},{$set:{branch:'alandi'}},{multi:true})
+
+
+	b.	Delete a customer who have balance less than 10000.
+
+		db.Customer.remove({balance:{$lt:10000}})
+
+
+	c.	Find all customer who have account at "alandi" branch
+
+		db.Customer.find({branch:'alandi'}).pretty()
+
+
+	d.	Find all the customer whose age is between 19 and 25.
+
+		db.Customer.find({age:{$gt:19},age:{$lt:25}}).pretty()
+
+
+	e.	Find the customers those have account in aund, kothrud and alandi branch.
+
+		db.Customer.find({$and:[{branch:'aund'},{branch:'kothrud'},{branch:'alandi'}]}).pretty()
+
+
+	f.	Find the customers whose age is greater than 19 and city is pune.
+
+		db.Customer.find({$and:[{city:'pune'},{age:{$gt:19}}]}).pretty()
+
+
+	g.	Find the customers who have "a" in their name
+
+		db.Customer.find({name:{$regex : /a/}}).pretty()
+
+
+	h.	Find all the customers residing outside the pune.
+
+		db.Customer.find({city:{$ne:'pune'}}).pretty()
+
+
+	i.	Find the customer who have submitted adhar and electricity bill.
+
+		db.Customer.find({$and:[{KYC:'adhar'},{KYC:'electricity bill'}]}).pretty()
+
+
+	j.	Find the customer who had same age as that of his NOMINEE
+		
+		db.Customer.find({$where : function() {return(this.age == this.nominee_age)}}).pretty()
+
+	
+
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 21 //////////////////////////////////////////////
+
+	Create following collection and execute queries using MongoDB.
+
+		custid, cname, city, acc_no, branch, balance, nominee, dob, KYC (Array), age
+
+		
+	a.	Replace a document with a document all the key value pairs except name come under details key for the customer whose name is 'guru'.
+
+
+
+	b.	Update the branch of a customer whose name is 'samarth'.
+
+		db.Customer.update({name:'samarth'},{$set:{branch:'wadi'}})
+
+
+	c.	Find all the customers whose age is greater than 19.
+
+		db.Customer.find({age:{$gt:19}})
+
+
+	d.	Find all the customers those are not residing in mumbai city
+
+		db.Customer.find({city:{$ne:'mumbai'}}).pretty()
+
+
+	e.	Customer who had not specified any nominee.
+
+		db.Customer.find({nominee: ""}).pretty()
+
+
+	f.	Find the cutomers who have submitted all documents.
+
+		db.Customer.find({KYC:{$all:['aadhar','electricity bill','passport','pan card']}}).pretty()
+
+
+	g.	Find the first five customer based on their balance.
+
+		db.Customer.find().sort({balance:-1}).limit(5).pretty()
+
+
+	h.	Display the number of document present in the customer relation.
+
+		db.Customer.find().count()
+
+
+	i.	Create the cursor where balance is greater then 15000 and display in json format.
+
+		var CustomerCursor=db.Customer.find({balance:{$gt:15000}});
+		while(CustomerCursor.hasNext()){print(tojson(CustomerCursor.next()));}
+
+
+	j.	Display the first five document of customer relation
+
+		db.Customer.find().limit(5)
+	
+
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 22 //////////////////////////////////////////////
+
+	Use the mapReduce() function to calculate total amount in each branch
+	
+	
+	
+	db.Bank.mapReduce(function(){emit(this.branch,this.balance)}, function(branch,balance) {return Array.sum(balance)} ,{out:'Total_Amount'} )
+
+	db.Total_Amount.find().pretty()
+	
+	
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 23 //////////////////////////////////////////////
+
+	Write a map-reduce function to display total fee collected from each year (FE, SE, TE, BE).
+	
+	
+
+	db.Student.mapReduce(function(){emit(this.year,this.fee);}, function (key,values) {return Array.sum(values)},{out:"Total_Fee"})
+
+	db.Total_Fee.find().pretty()
+
+
+
+
+
+
+
+///////////////////////////////////////////// CHIT NO. - 24 //////////////////////////////////////////////
+
+	Write a map-reduce function to display total salary amount spent for each department
+	
+	
+
+	db.Company.mapReduce(function(){emit(this.dept,this.salary)}, function(dept,salary) {return Array.sum(salary)} ,{out:'Total_Salary_Amount'} )
+
+	db.Total_Salary_Amount.find().pretty()
